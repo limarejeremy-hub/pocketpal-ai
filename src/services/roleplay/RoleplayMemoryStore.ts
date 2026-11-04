@@ -38,22 +38,46 @@ export function classifyRoleplayMemory(
   let kind: RoleplayMemory['kind'] = 'event';
   let importance = 5;
 
-  if (/\b(j['’]?aime|je pr[eé]f[eè]re|je d[eé]teste|mon pr[eé]f[eé]r[eé])\b/i.test(clean)) {
+  if (
+    /\b(j['’]?aime|je pr[eé]f[eè]re|je d[eé]teste|mon pr[eé]f[eé]r[eé])\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'preference';
     importance = 8;
-  } else if (/\b(je m['’]appelle|mon nom est|j['’]habite|je vis|je travaille|mon m[eé]tier)\b/i.test(clean)) {
+  } else if (
+    /\b(je m['’]appelle|mon nom est|j['’]habite|je vis|je travaille|mon m[eé]tier)\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'person';
     importance = 9;
-  } else if (/\b(promets?|promis|on s['’]est promis|rendez-vous|on se retrouve)\b/i.test(clean)) {
+  } else if (
+    /\b(promets?|promis|on s['’]est promis|rendez-vous|on se retrouve)\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'promise';
     importance = 9;
-  } else if (/\b(ensemble|relation|couple|mari[eé]s?|rencontr[eé]s?|premier rendez-vous)\b/i.test(clean)) {
+  } else if (
+    /\b(ensemble|relation|couple|mari[eé]s?|rencontr[eé]s?|premier rendez-vous)\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'relationship';
     importance = 8;
-  } else if (/\b(rouen|paris|maison|appartement|h[oô]tel|restaurant|bar|bureau|atelier)\b/i.test(clean)) {
+  } else if (
+    /\b(rouen|paris|maison|appartement|h[oô]tel|restaurant|bar|bureau|atelier)\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'place';
     importance = 6;
-  } else if (/\b(hier|demain|aujourd['’]hui|semaine prochaine|mois prochain|\d{1,2}[\/-]\d{1,2})\b/i.test(clean)) {
+  } else if (
+    /\b(hier|demain|aujourd['’]hui|semaine prochaine|mois prochain|\d{1,2}[\/-]\d{1,2})\b/i.test(
+      clean,
+    )
+  ) {
     kind = 'timeline';
     importance = 7;
   }
@@ -81,8 +105,7 @@ export async function loadRoleplayMemory(
         typeof parsed.rollingSummary === 'string'
           ? parsed.rollingSummary
           : undefined,
-      updatedAt:
-        typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
+      updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
     };
   } catch (error) {
     console.warn('[roleplay-memory] failed to load memory', error);
