@@ -74,8 +74,7 @@ export function buildPalRoleplayContext(
       speakingStyle: firstString(p.speakingStyle, p.toneStyle),
       history: firstString(p.history, p.backstory),
       language:
-        firstString(p.language) ??
-        'français de France naturel et contemporain',
+        firstString(p.language) ?? 'français de France naturel et contemporain',
     },
     scene: {
       location: firstString(p.location),
