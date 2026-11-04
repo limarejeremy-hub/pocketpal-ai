@@ -853,7 +853,11 @@ export const useChatSession = (
       // current message is intentionally not injected back into this same
       // prompt, avoiding duplicate context; it becomes available next turn.
       if (activeSession?.id) {
-        await rememberRoleplayText(activeSession.id, pal.id, message.text ?? '');
+        await rememberRoleplayText(
+          activeSession.id,
+          pal.id,
+          message.text ?? '',
+        );
       }
     }
 
