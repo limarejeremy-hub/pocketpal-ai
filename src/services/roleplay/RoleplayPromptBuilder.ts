@@ -9,9 +9,20 @@ function compact(lines: Array<string | undefined>): string {
 
 export function buildRoleplayContextPrompt(context: RoleplayContext): string {
   const {character, scene, mode = 'interactive'} = context;
-  const memories = (context.memories ?? [])
+  const allMemories = context.memories ?? [];
+  const important = allMemories
     .slice()
     .sort((a, b) => b.importance - a.importance || b.createdAt - a.createdAt)
+    .slice(0, Math.ceil(MAX_MEMORIES / 2));
+  const recent = allMemories
+    .slice()
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, Math.floor(MAX_MEMORIES / 2));
+  const memories = [...important, ...recent]
+    .filter(
+      (memory, index, items) =>
+        items.findIndex(candidate => candidate.id === memory.id) === index,
+    )
     .slice(0, MAX_MEMORIES);
 
   const memoryBlock = memories.length
