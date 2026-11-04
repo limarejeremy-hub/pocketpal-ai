@@ -17,7 +17,13 @@ describe('RoleplayPromptBuilder', () => {
         unresolvedEvents: [],
       },
       memories: [
-        {id: 'm1', kind: 'event', text: 'Ils se sont rencontrés à Rouen.', importance: 10, createdAt: 1},
+        {
+          id: 'm1',
+          kind: 'event',
+          text: 'Ils se sont rencontrés à Rouen.',
+          importance: 10,
+          createdAt: 1,
+        },
       ],
       mode: 'autonomous',
     });
