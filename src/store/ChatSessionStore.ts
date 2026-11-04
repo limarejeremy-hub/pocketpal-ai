@@ -15,6 +15,7 @@ import {
 } from '../utils/completionTypes';
 import {chatSessionRepository} from '../repositories/ChatSessionRepository';
 import {defaultCompletionParams} from '../utils/completionSettingsVersions';
+import {clearRoleplayMemory} from '../services/roleplay';
 import {derivedText} from '../utils/chat';
 import {palStore} from './PalStore';
 import {deriveToolSchemas} from '../services/talents';
@@ -324,7 +325,11 @@ class ChatSessionStore {
 
   async deleteSession(id: string): Promise<void> {
     try {
+      const sessionToDelete = this.sessions.find(session => session.id === id);
       await chatSessionRepository.deleteSession(id);
+      if (sessionToDelete?.activePalId) {
+        await clearRoleplayMemory(id, sessionToDelete.activePalId);
+      }
 
       if (id === this.activeSessionId) {
         this.resetActiveSession();
@@ -1399,8 +1404,20 @@ class ChatSessionStore {
     try {
       const idsToDelete = Array.from(this.selectedSessionIds);
 
+      const roleplayMemoriesToDelete = this.sessions
+        .filter(session => idsToDelete.includes(session.id) && session.activePalId)
+        .map(session => ({
+          sessionId: session.id,
+          palId: session.activePalId as string,
+        }));
+
       // Delete from database
       await chatSessionRepository.deleteSessions(idsToDelete);
+      await Promise.all(
+        roleplayMemoriesToDelete.map(({sessionId, palId}) =>
+          clearRoleplayMemory(sessionId, palId),
+        ),
+      );
 
       // Check if active session was deleted
       const wasActiveSessionDeleted =
