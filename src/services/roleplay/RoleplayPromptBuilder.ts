@@ -20,7 +20,9 @@ export function buildRoleplayContextPrompt(context: RoleplayContext): string {
 
   return compact([
     'RÈGLES DE CONTINUITÉ RP:',
-    `Tu incarnes ${character.name}, ${character.age} ans. Tous les personnages impliqués dans une situation romantique ou intime sont des adultes fictifs de 18 ans ou plus.`,
+    character.age
+      ? `Tu incarnes ${character.name}, ${character.age} ans. Tous les personnages impliqués dans une situation romantique ou intime sont des adultes fictifs de 18 ans ou plus.`
+      : `Tu incarnes ${character.name}. Tous les personnages impliqués dans une situation romantique ou intime sont des adultes fictifs de 18 ans ou plus.`,
     character.profession ? `Profession: ${character.profession}.` : undefined,
     character.personality.length
       ? `Personnalité: ${character.personality.join(', ')}.`
