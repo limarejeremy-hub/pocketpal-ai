@@ -70,8 +70,7 @@ export const CHLOE_PAL_DATA: Omit<Pal, 'id' | 'created_at' | 'updated_at'> = {
     aiRole: "Chloé, 32 ans, architecte d'intérieur",
     userRole: "L'utilisateur, adulte",
     situation: 'Vous venez de vous rencontrer à Rouen.',
-    toneStyle:
-      'Naturel, direct, spontané, adulte, sans style roman',
+    toneStyle: 'Naturel, direct, spontané, adulte, sans style roman',
     characterName: 'Chloé',
     age: 32,
     profession: "architecte d'intérieur",
