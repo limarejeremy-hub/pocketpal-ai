@@ -26,7 +26,10 @@ export function buildRoleplayContextPrompt(context: RoleplayContext): string {
     .slice(0, MAX_MEMORIES);
 
   const memoryBlock = memories.length
-    ? ['MÉMOIRE PERSISTANTE:', ...memories.map(memory => `- ${memory.text}`)].join('\n')
+    ? [
+        'MÉMOIRE PERSISTANTE:',
+        ...memories.map(memory => `- ${memory.text}`),
+      ].join('\n')
     : undefined;
 
   return compact([
@@ -38,14 +41,18 @@ export function buildRoleplayContextPrompt(context: RoleplayContext): string {
     character.personality.length
       ? `Personnalité: ${character.personality.join(', ')}.`
       : undefined,
-    character.speakingStyle ? `Style de parole: ${character.speakingStyle}.` : undefined,
+    character.speakingStyle
+      ? `Style de parole: ${character.speakingStyle}.`
+      : undefined,
     character.history ? `Histoire: ${character.history}.` : undefined,
     `Langue: ${character.language || 'français de France naturel et contemporain'}.`,
     'Reste cohérent avec les faits établis. N’invente pas les paroles, pensées ou émotions de l’utilisateur.',
     scene.location ? `Lieu actuel: ${scene.location}.` : undefined,
     scene.time ? `Moment: ${scene.time}.` : undefined,
     scene.situation ? `Situation: ${scene.situation}.` : undefined,
-    scene.relationshipState ? `Relation: ${scene.relationshipState}.` : undefined,
+    scene.relationshipState
+      ? `Relation: ${scene.relationshipState}.`
+      : undefined,
     scene.activeCharacters.length
       ? `Personnages présents: ${scene.activeCharacters.join(', ')}.`
       : undefined,
