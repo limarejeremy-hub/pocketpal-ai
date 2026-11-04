@@ -134,5 +134,9 @@ export async function clearRoleplayMemory(
   sessionId: string,
   palId: string,
 ): Promise<void> {
-  await AsyncStorage.removeItem(storageKey(sessionId, palId));
+  try {
+    await AsyncStorage.removeItem(storageKey(sessionId, palId));
+  } catch (error) {
+    console.warn('[roleplay-memory] failed to clear memory', error);
+  }
 }
