@@ -75,6 +75,8 @@ import {
   isRoleplayPal,
   loadRoleplayMemory,
   rememberRoleplayText,
+  roleplayHistoryBudgetForContext,
+  trimRoleplayHistory,
 } from '../services/roleplay';
 // Helper function to prepare completion parameters using OpenAI-compatible
 // messages API. Creates the empty `assistant_turn` row up-front so the
@@ -91,6 +93,7 @@ const prepareCompletion = async ({
   l10n,
   currentMessages,
   spoken,
+  historyCharacterBudget,
 }: {
   imageUris: string[];
   message: MessageType.PartialText;
@@ -102,6 +105,7 @@ const prepareCompletion = async ({
   l10n: any;
   currentMessages: MessageType.Any[];
   spoken: boolean;
+  historyCharacterBudget?: number;
 }) => {
   const sessionCompletionSettings =
     await chatSessionStore.getCurrentCompletionSettings();
@@ -159,6 +163,10 @@ const prepareCompletion = async ({
       }
       return msg;
     });
+  }
+
+  if (historyCharacterBudget) {
+    chatMessages = trimRoleplayHistory(chatMessages, historyCharacterBudget);
   }
 
   // Talent-contributed system-prompt fragments (e.g. search grounding). Kept on
@@ -849,6 +857,13 @@ export const useChatSession = (
       }
     }
 
+    const roleplayHistoryBudget =
+      isRoleplayPal(pal) && (pal.pact?.talents?.length ?? 0) === 0
+        ? roleplayHistoryBudgetForContext(
+            modelStore.activeModelCaps.effectiveContextLength,
+          )
+        : undefined;
+
     const {cleanCompletionParams, messageInfo} = await prepareCompletion({
       imageUris: imageUris || [],
       message,
@@ -860,6 +875,7 @@ export const useChatSession = (
       l10n,
       currentMessages,
       spoken: !!opts.spoken,
+      historyCharacterBudget: roleplayHistoryBudget,
     });
 
     currentMessageInfo.current = messageInfo;
