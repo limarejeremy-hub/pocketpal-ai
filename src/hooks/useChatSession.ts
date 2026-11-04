@@ -73,6 +73,8 @@ import {
   buildPalRoleplayContext,
   buildRoleplayContextPrompt,
   isRoleplayPal,
+  loadRoleplayMemory,
+  rememberRoleplayText,
 } from '../services/roleplay';
 // Helper function to prepare completion parameters using OpenAI-compatible
 // messages API. Creates the empty `assistant_turn` row up-front so the
@@ -827,9 +829,23 @@ export const useChatSession = (
     // required by strict chat templates.
     if (isRoleplayPal(pal)) {
       const roleplayContext = buildPalRoleplayContext(pal, message.text ?? '');
+
+      if (activeSession?.id) {
+        const memory = await loadRoleplayMemory(activeSession.id, pal.id);
+        roleplayContext.memories = memory.memories;
+        roleplayContext.rollingSummary = memory.rollingSummary;
+      }
+
       const roleplayPrompt = buildRoleplayContextPrompt(roleplayContext);
       if (roleplayPrompt.trim()) {
         systemMessages.push({role: 'system', content: roleplayPrompt});
+      }
+
+      // Persist the user's salient RP facts/events for future turns. The
+      // current message is intentionally not injected back into this same
+      // prompt, avoiding duplicate context; it becomes available next turn.
+      if (activeSession?.id) {
+        await rememberRoleplayText(activeSession.id, pal.id, message.text ?? '');
       }
     }
 
