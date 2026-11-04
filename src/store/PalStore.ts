@@ -54,6 +54,8 @@ import {downloadPalThumbnail, deletePalThumbnail} from '../utils/imageUtils';
 const LOOKIE_SEEDED_KEY = 'PalStore.builtin.Lookie.seeded';
 const PIP_SEEDED_KEY = 'PalStore.builtin.Pip.seeded';
 const CHLOE_SEEDED_KEY = 'PalStore.builtin.Chloe.seeded';
+const CHLOE_PRESET_VERSION_KEY = 'PalStore.builtin.Chloe.version';
+const CHLOE_PRESET_VERSION = '2';
 
 interface CreatorUpdateContext {
   fresh: Pal;
