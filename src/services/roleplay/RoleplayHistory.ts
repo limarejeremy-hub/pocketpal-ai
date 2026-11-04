@@ -59,7 +59,11 @@ export function roleplayHistoryBudgetForContext(
   contextTokens: number | undefined,
 ): number {
   const safeTokens =
-    Number.isFinite(contextTokens) && contextTokens > 0 ? contextTokens : 4096;
+    typeof contextTokens === 'number' &&
+    Number.isFinite(contextTokens) &&
+    contextTokens > 0
+      ? contextTokens
+      : 4096;
 
   // Rough mobile-friendly conversion: reserve ample room for the system prompt,
   // persistent memories and the model's next answer.
