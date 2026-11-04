@@ -13,7 +13,7 @@ describe('RoleplayMemoryStore', () => {
 
   it('keeps preferences', () => {
     const memory = classifyRoleplayMemory(
-      "Je préfère les endroits calmes aux boîtes de nuit.",
+      'Je préfère les endroits calmes aux boîtes de nuit.',
     );
     expect(memory?.kind).toBe('preference');
   });
