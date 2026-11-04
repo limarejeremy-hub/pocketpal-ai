@@ -1011,6 +1011,31 @@ export const useChatSession = (
           throw event.error;
         }
       }
+
+      // Preserve story developments introduced by the character as episodic
+      // memory as well. This is deliberately done after a successful run so
+      // aborted/failed generations do not become durable canon.
+      if (isRoleplayPal(pal) && activeSession?.id) {
+        const completedSession = chatSessionStore.sessions.find(
+          session => session.id === messageInfo.sessionId,
+        );
+        const completedTurn = completedSession?.messages.find(
+          item => item.id === messageInfo.id,
+        );
+        if (completedTurn?.type === 'assistant_turn') {
+          const assistantMemory = completedTurn.steps
+            .map(step => visibleStepContent(step))
+            .filter(Boolean)
+            .join('\n');
+          if (assistantMemory.trim()) {
+            await rememberRoleplayText(
+              activeSession.id,
+              pal.id,
+              assistantMemory,
+            );
+          }
+        }
+      }
     } catch (error) {
       console.error('Completion error:', error);
       vtrace('run.error', {aborted: lease.signal.aborted});
