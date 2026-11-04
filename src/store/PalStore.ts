@@ -29,6 +29,7 @@ import {resolveHFModelForDownload} from '../utils/hfResolve';
 import {palsHubService} from '../services';
 import {registerDefaultTalents} from '../services/talents';
 import {LOOKIE_DEFAULT_MODEL} from './builtinPalModels';
+import {CHLOE_PAL_DATA} from './builtinRoleplayPals';
 import {chatTemplates} from '../utils/chat';
 import {defaultCompletionParams} from '../utils/completionSettingsVersions';
 import {parsePalsHubTemplate} from '../utils/palshub-template-parser';
@@ -52,6 +53,7 @@ import {downloadPalThumbnail, deletePalThumbnail} from '../utils/imageUtils';
 // (check key, find existing, create, set key) instead of a third copy.
 const LOOKIE_SEEDED_KEY = 'PalStore.builtin.Lookie.seeded';
 const PIP_SEEDED_KEY = 'PalStore.builtin.Pip.seeded';
+const CHLOE_SEEDED_KEY = 'PalStore.builtin.Chloe.seeded';
 
 interface CreatorUpdateContext {
   fresh: Pal;
@@ -161,6 +163,9 @@ class PalStore {
 
       // Initialize Pip pal (idempotent — see initializePipPal).
       await this.initializePipPal();
+
+      // Seed the GoLove Local roleplay companion once.
+      await this.initializeChloePal();
 
       // Register talent engines (idempotent)
       registerDefaultTalents();
@@ -904,6 +909,26 @@ class PalStore {
       await AsyncStorage.setItem(PIP_SEEDED_KEY, 'true');
     } catch (error) {
       console.error('Error initializing Pip pal:', error);
+    }
+  }
+  private async initializeChloePal(): Promise<void> {
+    try {
+      if ((await AsyncStorage.getItem(CHLOE_SEEDED_KEY)) === 'true') {
+        return;
+      }
+
+      const existing = this.pals.find(
+        p => p.name === 'Chloé' && p.source === 'local',
+      );
+      if (existing) {
+        await AsyncStorage.setItem(CHLOE_SEEDED_KEY, 'true');
+        return;
+      }
+
+      await this.addPal(CHLOE_PAL_DATA);
+      await AsyncStorage.setItem(CHLOE_SEEDED_KEY, 'true');
+    } catch (error) {
+      console.error('Error initializing Chloé pal:', error);
     }
   }
 }
