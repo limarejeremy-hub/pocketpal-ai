@@ -32,5 +32,6 @@ export interface RoleplayContext {
   character: CharacterProfile;
   scene: SceneState;
   memories?: RoleplayMemory[];
+  rollingSummary?: string;
   mode?: RoleplayMode;
 }
