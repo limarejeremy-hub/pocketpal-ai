@@ -1,4 +1,7 @@
-import {detectRoleplayMode, getAutonomyInstruction} from '../AutonomyController';
+import {
+  detectRoleplayMode,
+  getAutonomyInstruction,
+} from '../AutonomyController';
 
 describe('AutonomyController', () => {
   it.each([
