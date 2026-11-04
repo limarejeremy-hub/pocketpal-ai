@@ -64,3 +64,8 @@ A user can create/select a fictional adult character, start a French conversatio
 ## Out of scope for V1
 
 Image generation, video, avatar animation, social marketplace, monetization and cloud accounts. These can come later; they must not delay the chat engine.
+
+
+## Implementation status
+
+The first runtime slice is now wired into the live chat pipeline: roleplay context injection, autonomous-mode intent detection, persistent local memories, bounded raw history, a seeded Chloé companion, and a separate Android application id for side-by-side testing.
