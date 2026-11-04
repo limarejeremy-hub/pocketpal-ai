@@ -69,6 +69,15 @@ import {
   type AgentUiState,
   type TokenDelta,
 } from '../services/agent';
+import {
+  buildPalRoleplayContext,
+  buildRoleplayContextPrompt,
+  isRoleplayPal,
+  loadRoleplayMemory,
+  rememberRoleplayText,
+  roleplayHistoryBudgetForContext,
+  trimRoleplayHistory,
+} from '../services/roleplay';
 // Helper function to prepare completion parameters using OpenAI-compatible
 // messages API. Creates the empty `assistant_turn` row up-front so the
 // active-vs-persisted predicate sees the right "last message" before the
@@ -84,6 +93,7 @@ const prepareCompletion = async ({
   l10n,
   currentMessages,
   spoken,
+  historyCharacterBudget,
 }: {
   imageUris: string[];
   message: MessageType.PartialText;
@@ -95,6 +105,7 @@ const prepareCompletion = async ({
   l10n: any;
   currentMessages: MessageType.Any[];
   spoken: boolean;
+  historyCharacterBudget?: number;
 }) => {
   const sessionCompletionSettings =
     await chatSessionStore.getCurrentCompletionSettings();
@@ -152,6 +163,10 @@ const prepareCompletion = async ({
       }
       return msg;
     });
+  }
+
+  if (historyCharacterBudget) {
+    chatMessages = trimRoleplayHistory(chatMessages, historyCharacterBudget);
   }
 
   // Talent-contributed system-prompt fragments (e.g. search grounding). Kept on
@@ -816,6 +831,43 @@ export const useChatSession = (
       model: modelStore.activeModel,
     });
 
+    // GoLove Local layer: enrich roleplay Pals at runtime without changing
+    // llama.cpp, the selected GGUF, or PocketPal's persisted base prompt.
+    // assembleMessages() will fold this into the single leading system message
+    // required by strict chat templates.
+    if (isRoleplayPal(pal)) {
+      const roleplayContext = buildPalRoleplayContext(pal, message.text ?? '');
+
+      if (activeSession?.id) {
+        const memory = await loadRoleplayMemory(activeSession.id, pal.id);
+        roleplayContext.memories = memory.memories;
+        roleplayContext.rollingSummary = memory.rollingSummary;
+      }
+
+      const roleplayPrompt = buildRoleplayContextPrompt(roleplayContext);
+      if (roleplayPrompt.trim()) {
+        systemMessages.push({role: 'system', content: roleplayPrompt});
+      }
+
+      // Persist the user's salient RP facts/events for future turns. The
+      // current message is intentionally not injected back into this same
+      // prompt, avoiding duplicate context; it becomes available next turn.
+      if (activeSession?.id) {
+        await rememberRoleplayText(
+          activeSession.id,
+          pal.id,
+          message.text ?? '',
+        );
+      }
+    }
+
+    const roleplayHistoryBudget =
+      isRoleplayPal(pal) && (pal.pact?.talents?.length ?? 0) === 0
+        ? roleplayHistoryBudgetForContext(
+            modelStore.activeModelCaps.effectiveContextLength,
+          )
+        : undefined;
+
     const {cleanCompletionParams, messageInfo} = await prepareCompletion({
       imageUris: imageUris || [],
       message,
@@ -827,6 +879,7 @@ export const useChatSession = (
       l10n,
       currentMessages,
       spoken: !!opts.spoken,
+      historyCharacterBudget: roleplayHistoryBudget,
     });
 
     currentMessageInfo.current = messageInfo;
@@ -976,6 +1029,31 @@ export const useChatSession = (
 
         if (event.type === 'run_failed') {
           throw event.error;
+        }
+      }
+
+      // Preserve story developments introduced by the character as episodic
+      // memory as well. This is deliberately done after a successful run so
+      // aborted/failed generations do not become durable canon.
+      if (isRoleplayPal(pal) && activeSession?.id) {
+        const completedSession = chatSessionStore.sessions.find(
+          session => session.id === messageInfo.sessionId,
+        );
+        const completedTurn = completedSession?.messages.find(
+          item => item.id === messageInfo.id,
+        );
+        if (completedTurn?.type === 'assistant_turn') {
+          const assistantMemory = completedTurn.steps
+            .map(step => visibleStepContent(step))
+            .filter(Boolean)
+            .join('\n');
+          if (assistantMemory.trim()) {
+            await rememberRoleplayText(
+              activeSession.id,
+              pal.id,
+              assistantMemory,
+            );
+          }
         }
       }
     } catch (error) {
