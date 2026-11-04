@@ -69,6 +69,11 @@ import {
   type AgentUiState,
   type TokenDelta,
 } from '../services/agent';
+import {
+  buildPalRoleplayContext,
+  buildRoleplayContextPrompt,
+  isRoleplayPal,
+} from '../services/roleplay';
 // Helper function to prepare completion parameters using OpenAI-compatible
 // messages API. Creates the empty `assistant_turn` row up-front so the
 // active-vs-persisted predicate sees the right "last message" before the
@@ -815,6 +820,18 @@ export const useChatSession = (
       pal,
       model: modelStore.activeModel,
     });
+
+    // GoLove Local layer: enrich roleplay Pals at runtime without changing
+    // llama.cpp, the selected GGUF, or PocketPal's persisted base prompt.
+    // assembleMessages() will fold this into the single leading system message
+    // required by strict chat templates.
+    if (isRoleplayPal(pal)) {
+      const roleplayContext = buildPalRoleplayContext(pal, message.text ?? '');
+      const roleplayPrompt = buildRoleplayContextPrompt(roleplayContext);
+      if (roleplayPrompt.trim()) {
+        systemMessages.push({role: 'system', content: roleplayPrompt});
+      }
+    }
 
     const {cleanCompletionParams, messageInfo} = await prepareCompletion({
       imageUris: imageUris || [],
