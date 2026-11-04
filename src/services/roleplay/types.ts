@@ -22,7 +22,15 @@ export interface SceneState {
 
 export interface RoleplayMemory {
   id: string;
-  kind: 'person' | 'relationship' | 'event' | 'preference' | 'place' | 'timeline' | 'promise' | 'other';
+  kind:
+    | 'person'
+    | 'relationship'
+    | 'event'
+    | 'preference'
+    | 'place'
+    | 'timeline'
+    | 'promise'
+    | 'other';
   text: string;
   importance: number;
   createdAt: number;
