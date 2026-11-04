@@ -69,3 +69,8 @@ Image generation, video, avatar animation, social marketplace, monetization and 
 ## Implementation status
 
 The first runtime slice is now wired into the live chat pipeline: roleplay context injection, autonomous-mode intent detection, persistent local memories, bounded raw history, a seeded Chloé companion, and a separate Android application id for side-by-side testing.
+
+
+### Chloé preset V2
+
+The mobile RP preset now favors direct contemporary French over literary narration, keeps autonomous multi-beat progression, caps a single response to avoid exhausting the context window, and migrates an existing seeded Chloé profile on app update.
