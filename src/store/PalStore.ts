@@ -915,20 +915,26 @@ class PalStore {
   }
   private async initializeChloePal(): Promise<void> {
     try {
-      if ((await AsyncStorage.getItem(CHLOE_SEEDED_KEY)) === 'true') {
-        return;
-      }
-
+      const presetVersion = await AsyncStorage.getItem(
+        CHLOE_PRESET_VERSION_KEY,
+      );
       const existing = this.pals.find(
         p => p.name === 'Chloé' && p.source === 'local',
       );
+
       if (existing) {
-        await AsyncStorage.setItem(CHLOE_SEEDED_KEY, 'true');
-        return;
+        if (presetVersion !== CHLOE_PRESET_VERSION) {
+          await this.updatePal(existing.id, CHLOE_PAL_DATA);
+        }
+      } else {
+        await this.addPal(CHLOE_PAL_DATA);
       }
 
-      await this.addPal(CHLOE_PAL_DATA);
       await AsyncStorage.setItem(CHLOE_SEEDED_KEY, 'true');
+      await AsyncStorage.setItem(
+        CHLOE_PRESET_VERSION_KEY,
+        CHLOE_PRESET_VERSION,
+      );
     } catch (error) {
       console.error('Error initializing Chloé pal:', error);
     }
