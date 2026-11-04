@@ -1405,7 +1405,9 @@ class ChatSessionStore {
       const idsToDelete = Array.from(this.selectedSessionIds);
 
       const roleplayMemoriesToDelete = this.sessions
-        .filter(session => idsToDelete.includes(session.id) && session.activePalId)
+        .filter(
+          session => idsToDelete.includes(session.id) && session.activePalId,
+        )
         .map(session => ({
           sessionId: session.id,
           palId: session.activePalId as string,
