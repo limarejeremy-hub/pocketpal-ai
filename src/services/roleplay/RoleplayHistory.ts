@@ -55,7 +55,9 @@ export function trimRoleplayHistory<T extends RoleplayChatMessage>(
   return kept.reverse();
 }
 
-export function roleplayHistoryBudgetForContext(contextTokens: number): number {
+export function roleplayHistoryBudgetForContext(
+  contextTokens: number | undefined,
+): number {
   const safeTokens =
     Number.isFinite(contextTokens) && contextTokens > 0 ? contextTokens : 4096;
 
