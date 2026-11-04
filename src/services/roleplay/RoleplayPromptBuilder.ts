@@ -41,6 +41,9 @@ export function buildRoleplayContextPrompt(context: RoleplayContext): string {
     scene.unresolvedEvents.length
       ? `Éléments en cours: ${scene.unresolvedEvents.join(' | ')}.`
       : undefined,
+    context.rollingSummary
+      ? `RÉSUMÉ DE CONTINUITÉ:\n${context.rollingSummary}`
+      : undefined,
     memoryBlock,
     getAutonomyInstruction(mode),
   ]);
