@@ -3,7 +3,7 @@ export type RoleplayMode = 'interactive' | 'autonomous';
 export interface CharacterProfile {
   id: string;
   name: string;
-  age: number;
+  age?: number;
   profession?: string;
   personality: string[];
   speakingStyle?: string;
