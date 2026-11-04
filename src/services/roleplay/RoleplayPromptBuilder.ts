@@ -1,7 +1,7 @@
 import {getAutonomyInstruction} from './AutonomyController';
 import type {RoleplayContext} from './types';
 
-const MAX_MEMORIES = 12;
+const MAX_MEMORIES = 8;
 
 function compact(lines: Array<string | undefined>): string {
   return lines.filter(Boolean).join('\n');
