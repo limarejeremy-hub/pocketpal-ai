@@ -60,7 +60,7 @@ export function classifyRoleplayMemory(
 
   return {
     kind,
-    text: clean.slice(0, 500),
+    text: clean.slice(0, 320),
     importance,
   };
 }
